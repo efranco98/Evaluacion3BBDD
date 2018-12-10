@@ -1,0 +1,21 @@
+before insert
+CREATE DEFINER=`root`@`localhost` TRIGGER `evaluacion_3`.`empleados_BEFORE_INSERT` BEFORE INSERT ON `empleados` FOR EACH ROW
+BEGIN
+if new.salario < 10000 then
+#ES  UNA EXCEPCIÓN
+	signal sqlstate '45000' set message_text = 'Te duele el codo?';
+end if;
+
+set new.rfc = genera_RFC(new.nombre, new.apellido, new.apellido_mat, new.fecha);
+
+END
+
+after_insert
+CREATE DEFINER=`root`@`localhost` TRIGGER `evaluacion_3`.`empleados_AFTER_INSERT` AFTER INSERT ON `empleados` FOR EACH ROW
+BEGIN
+declare total_sal int;
+select sum(salario) into total_sal
+from empleados;
+update salario
+ set total_salarios = total_sal;
+END

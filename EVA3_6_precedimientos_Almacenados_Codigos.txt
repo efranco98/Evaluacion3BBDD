@@ -1,0 +1,68 @@
+conteo clientes
+CREATE DEFINER=`root`@`localhost` PROCEDURE `conteo_clientes`(out cont int)
+BEGIN
+select count(*) into cont 
+from customers;
+END
+
+conteo clientes filtro
+CREATE DEFINER=`root`@`localhost` PROCEDURE `conteo_clientes_filtro`(in letra text, out conteo int)
+BEGIN
+
+select count(*) into conteo
+from customers
+where companyname like concat(letra,'%');
+
+END
+
+agregar region
+CREATE DEFINER=`root`@`localhost` PROCEDURE `agregar_region`(in nombre_region text)
+BEGIN
+declare clave int;
+select max(regionid) into clave
+from region;
+
+set clave = clave+1;
+
+insert into region values(clave, nombre_region);
+
+END
+
+actualizar rfc
+
+CREATE FUNCTION `actualizar_rfc` ()
+RETURNS INTEGER
+BEGIN
+declare nombre text;
+declare apellido text;
+declare nacimiento datetime;
+declare fin_cursor int default false;
+
+declare cursor_empleados cursor for 
+select employeeid, firstname, lastname, birthdate from empleados_duplicados;
+
+ declare continue handler for not found set fin_cursor = true;
+ open cursor_empleados;
+ 
+ 
+ 
+ciclo_cursor: loop
+
+fetch cursor_empleados into employeeid, nombre, apellido, nacimiento;
+
+ 
+ 
+ if fin_cursor then 
+ leave ciclo_cursor;
+ else
+ update empleados_duplicados  
+ set rfc = obten_rfc(nombre,apellido,nacimiento)
+ where employeeid=clave; 
+ end if;
+ end loop;
+
+
+RETURN 1;
+END
+
+TERMINAR!!, SOLO UN ERROR EN EL WHERE!!
